@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>期数资料</title>
+<style>
+    body {
+        background-color: #f5f5f5; 
+        margin: 0;
+        padding: 10px 0;
+        font-family: "Microsoft YaHei", "宋体", sans-serif;
+    }
+    
+    /* 顶部输入修改区 */
+    .control-panel {
+        width: 420px;
+        margin: 0 auto 10px auto;
+        background: #fff;
+        padding: 12px;
+        border-radius: 8px;
+        box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        box-sizing: border-box;
+    }
+    .control-panel input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    .btn-group {
+        display: flex;
+        gap: 10px;
+    }
+    .control-panel button {
+        flex: 1;
+        padding: 10px;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .btn-update { background-color: #4CAF50; }
+    .btn-download { background-color: #FF9800; }
+
+    /* ---------------- 下面是截图区域的样式 ---------------- */
+    .container {
+        width: 420px; 
+        margin: 0 auto; 
+        background-color: #ffffff; 
+        position: relative; 
+        overflow: hidden; 
+    }
+    /* 水印 */
+    .watermark {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        pointer-events: none; 
+        z-index: 10; 
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='90'><text x='50%' y='50%' font-size='14' font-weight='bold' fill='rgba(180, 180, 180, 0.2)' transform='rotate(-30 45 45)' text-anchor='middle'>米多多</text></svg>");
+        background-repeat: repeat;
+    }
+    .qxtable {
+        font-size: 15px; 
+        line-height: 1.4;
+        font-weight: bold; 
+        border-collapse: collapse; 
+        position: relative;
+        z-index: 1; 
+    }
+    .qxtable td {
+        padding: 6px 4px; 
+        border: 1px solid #000000; 
+    }
+</style>
+
+<!-- 引入 html2canvas 截图库 -->
+<script src="https://cdn.bootcdn.net/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+<!-- ================= 网页修改面板 ================= -->
+<div class="control-panel">
+    <input type="text" id="in_qishu" value="302期" placeholder="期数">
+    <input type="text" id="in_biaoyu" value="发财机会天天见,专业服务不打烊" placeholder="抬头标语">
+    <input type="text" id="in_liuxiao" value="牛鸡猪狗马鼠" placeholder="六肖">
+    <input type="text" id="in_liuma" value="06 46 44 21 25 43 42 34" placeholder="号码(空格隔开)">
+    <div class="btn-group">
+        <button class="btn-update" onclick="updateTable()">更新数据</button>
+        <button class="btn-download" onclick="downloadImage()" id="btnDownload">保存高清图</button>
+    </div>
+</div>
+<!-- ==================================================================== -->
+
+
+<!-- 下面的代码是表格排版 -->
+<div class="container" id="screenshot-area">
+    
+    <!-- 水印层 -->
+    <div class="watermark"></div>
+
+    <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" class="qxtable">
+        <tbody>
+            <tr>
+                <td style="text-align:center;background:#e1f0ff" width="100%" colspan="2" height="32">
+                    <span id="show_qishu">302期</span>:<span id="show_biaoyu">发财机会天天见,专业服务不打烊</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left" bgcolor="#F4F4F4" width="48%" height="32">
+                    <font color="#000080">六肖:</font><font color="#FF0000"><span id="show_liuxiao">牛鸡猪狗马鼠</span></font>
+                </td>
+                <td style="text-align:left" bgcolor="#F4F4F4" height="32">
+                    <font color="#000080">8码:</font><font color="#FF0000"><span id="show_liuma">06 46 44 21 25 43 42 34</span></font>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left" bgcolor="#F4F4F4" width="48%" height="32">
+                    <font color="#000080">四肖:</font><font color="#FF0000"><span id="show_sixiao">牛鸡猪狗</span></font>
+                </td>
+                <td style="text-align:left" bgcolor="#F4F4F4" height="32">
+                    <font color="#000080">6码:</font><font color="#FF0000"><span id="show_sima">06 46 44 21 25 43</span></font>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left" bgcolor="#F4F4F4" width="48%" height="32">
+                    <font color="#000080">二肖:</font><font color="#FF0000"><span id="show_erxiao">牛鸡</span></font>
+                </td>
+                <td style="text-align:left" bgcolor="#F4F4F4" height="32">
+                    <font color="#000080">3码:</font><font color="#FF0000"><span id="show_erma">06 46 44</span></font>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left" bgcolor="#F4F4F4" width="48%" height="32">
+                    <font color="#000080">一肖:</font><font color="#FF0000"><span id="show_yixiao">牛</span></font><font color="#000080">~~稳准狠</font>
+                </td>
+                <td style="text-align:left" bgcolor="#F4F4F4" height="32">
+                    <font color="#000080">1码:</font><font color="#FF0000"><span id="show_yima">06</span></font><font color="#000080">~~重点多压</font>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:center;background:#e1f0ff" width="100%" colspan="2" height="32">
+                    百万富翁零距离，精彩服务百分百！
+                </td>
+            </tr>
+        </tbody>
+    </table> 
+</div>
+
+<!-- ================= 自动计算与保存图片逻辑 ================= -->
+<script>
+    function updateTable() {
+        var qishu = document.getElementById('in_qishu').value;
+        var biaoyu = document.getElementById('in_biaoyu').value;
+        var liuxiao = document.getElementById('in_liuxiao').value;
+        var liuma = document.getElementById('in_liuma').value;
+
+        document.getElementById('show_qishu').innerText = qishu;
+        document.getElementById('show_biaoyu').innerText = biaoyu;
+        document.getElementById('show_liuxiao').innerText = liuxiao;
+        document.getElementById('show_liuma').innerText = liuma;
+
+        document.getElementById('show_sixiao').innerText = liuxiao.substring(0, 4);
+        document.getElementById('show_erxiao').innerText = liuxiao.substring(0, 2);
+        document.getElementById('show_yixiao').innerText = liuxiao.substring(0, 1);
+
+        var maArray = liuma.trim().split(/\s+/);
+        document.getElementById('show_sima').innerText = maArray.slice(0, 6).join(" ");
+        document.getElementById('show_erma').innerText = maArray.slice(0, 3).join(" ");
+        document.getElementById('show_yima').innerText = maArray[0] || "";
+    }
+
+    // 页面刚打开时，自动执行一次
+    window.onload = updateTable;
+
+    // 保存为图片的功能
+    function downloadImage() {
+        var btn = document.getElementById('btnDownload');
+        btn.innerText = "正在生成...";
+        btn.disabled = true;
+
+        var element = document.getElementById('screenshot-area');
+        
+        // html2canvas 会自动把网页转成高清画布
+        html2canvas(element, {
+            scale: 3, // 数值越大，图片越高清
+            backgroundColor: "#ffffff", // 背景设为纯白
+            useCORS: true
+        }).then(function(canvas) {
+            // 生成图片链接
+            var imgData = canvas.toDataURL("image/png");
+            
+            // 创建一个隐藏的下载链接并触发点击
+            var link = document.createElement('a');
+            link.download = document.getElementById('in_qishu').value + '_资料.png';
+            link.href = imgData;
+            link.click();
+
+            // 恢复按钮状态
+            btn.innerText = "保存高清图";
+            btn.disabled = false;
+        }).catch(function(error) {
+            alert("生成图片失败，请确保网络畅通（需加载截图插件）");
+            btn.innerText = "保存高清图";
+            btn.disabled = false;
+        });
+    }
+</script>
+
+</body>
+</html>
