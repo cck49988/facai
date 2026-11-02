@@ -137,10 +137,8 @@
 <div class="control-panel">
     <div class="tip">
         <b>格式：</b>期数|标语|六肖|6个号码|底部标语|中或挂|开[生肖][号码]<br>
-        <span class="red-text">注意：底部标语里只要用尖括号 &lt; &gt; 包起来的字，都会自动变成黄底红字高光！</span><br>
         <span class="red-text">示例：305期|昨天坐地铁...|兔虎蛇羊鸡马|30.06.47.11.41.27|内幕资料 &lt;26中&gt; 为民造福!|中|开蛇26</span>
     </div>
-    <!-- 完美测试数据 -->
     <textarea id="in_data" oninput="saveData()"></textarea>
     <button onclick="generate()">生成连排（并自动保存）</button>
 </div>
@@ -183,7 +181,7 @@
             var title = parts[1];
             var liuxiao = parts[2].trim();
             var liuma = parts[3].trim();
-            var bottom = parts[4]; // 这里包含了带尖括号的文字
+            var bottom = parts[4]; 
             var status = parts[5].trim();
             
             var hitZodiac = "";
@@ -216,11 +214,10 @@
                 return `<span class="txt-number">${newStr}</span>`;
             }
 
-            // ⭐ 核心修改：自动识别底部的 < > 并替换为高亮样式
+            // ⭐ 核心修改：保留尖括号，并将整体包裹在高亮样式中
             var finalBottom = bottom;
             if (finalBottom.includes("<") && finalBottom.includes(">")) {
-                // 把 <xxx> 替换成黄底红字
-                finalBottom = finalBottom.replace(/<([^>]+)>/g, `<span class="highlight-yellow-box">$1</span>`);
+                finalBottom = finalBottom.replace(/<([^>]+)>/g, `<span class="highlight-yellow-box">&lt;$1&gt;</span>`);
             }
 
             // 自动截取
