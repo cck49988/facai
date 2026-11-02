@@ -87,7 +87,7 @@
     }
     .data-row:last-child { border-bottom: none; }
 
-    /* 左右两列布局：左边35%，右边65%（给右边留足空间不换行） */
+    /* 左右两列布局 */
     .col-left { 
         width: 45%; padding: 0 10px; font-size: 18px; font-weight: bold; 
         display: flex; align-items: center; border-right: 1px solid #333; box-sizing: border-box; 
@@ -104,7 +104,7 @@
     .txt-number { color: #FF0000; } 
     .txt-suffix { color: #CC00FF; font-size: 12px; font-weight: normal; margin-left: 5px; white-space: nowrap;} 
 
-    /* ⭐ 高亮样式：紧贴字体，无内边距，发光 ⭐ */
+    /* 高亮样式 */
     .hit-box {
         background-color: #FFFF00; 
         color: #FF0000 !important; 
@@ -119,12 +119,15 @@
         text-align: center; padding: 12px 0; font-size: 18px; font-weight: bold; 
         color: #FF0000; background-color: #050505; border-top: 1px solid #222; 
     }
+    
+    /* ⭐ 底部高亮专属样式 ⭐ */
     .highlight-yellow-box {
         background-color: #FFFF00;
         color: #FF0000 !important;
-        padding: 2px 6px;
-        margin: 0 4px;
+        padding: 0 4px;
+        margin: 0 2px;
         display: inline-block;
+        border-radius: 2px;
     }
 </style>
 </head>
@@ -133,8 +136,9 @@
 <!-- ================= 网页修改面板 ================= -->
 <div class="control-panel">
     <div class="tip">
-        <b>格式：</b>期数|标语|六肖|6个号码|底部标语|中或挂|开[生肖][号码]|[高亮文字]<br>
-        <span class="red-text">示例：305期|昨天坐地铁...|兔虎蛇羊鸡马|30.06.47.11.41.27|内幕资料 <00> 为民造福!|中|开蛇26|&lt;③肖中&gt;</span>
+        <b>格式：</b>期数|标语|六肖|6个号码|底部标语|中或挂|开[生肖][号码]<br>
+        <span class="red-text">注意：底部标语里只要用尖括号 &lt; &gt; 包起来的字，都会自动变成黄底红字高光！</span><br>
+        <span class="red-text">示例：305期|昨天坐地铁...|兔虎蛇羊鸡马|30.06.47.11.41.27|内幕资料 &lt;26中&gt; 为民造福!|中|开蛇26</span>
     </div>
     <!-- 完美测试数据 -->
     <textarea id="in_data" oninput="saveData()"></textarea>
@@ -157,10 +161,8 @@
         if (savedData) {
             document.getElementById('in_data').value = savedData;
         } else {
-            // 默认放两期测试数据，完美对应图1的效果
             document.getElementById('in_data').value = 
-"305期|昨天坐地铁打工,今天保时捷接送!|兔虎蛇羊鸡马|30.06.47.11.41.27|内幕资料 X 为民造福!|中|开蛇|<③肖中>\n" +
-"306期|昨天坐地铁打工,今天保时捷接送!|牛猴虎龙蛇羊|30.06.47.11.41.27|内幕资料 X 为民造福!|中|开虎26|<③肖中>";
+"305期|昨天坐地铁打工,今天保时捷接送!|兔虎蛇羊鸡马|30.06.47.11.41.27|内幕资料 <26中> 为民造福!|中|开蛇26";
         }
         generate(); 
     };
@@ -181,14 +183,13 @@
             var title = parts[1];
             var liuxiao = parts[2].trim();
             var liuma = parts[3].trim();
-            var bottom = parts[4];
+            var bottom = parts[4]; // 这里包含了带尖括号的文字
             var status = parts[5].trim();
             
             var hitZodiac = "";
             var hitNumber = "";
-            var bottomHighlight = "";
 
-            // 解析开奖数据 (比如 "开蛇26" 或 "开虎")
+            // 解析开奖数据
             if (parts.length >= 7 && parts[6].trim() !== "") {
                 var hitData = parts[6]; 
                 var zodiacMatch = hitData.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/);
@@ -198,17 +199,11 @@
                 if (numberMatch) hitNumber = numberMatch[0];
             }
 
-            // 解析底部高亮文字
-            if (parts.length >= 8) {
-                bottomHighlight = parts[7].trim();
-            }
-
             if (status === '挂') continue; 
 
-            // --- 渲染高亮 ---
+            // 渲染高亮
             function renderZodiac(str) {
                 if (!hitZodiac) return `<span class="txt-zodiac">${str}</span>`;
-                // 用正则替换，不用split，防止出现多余的闭合标签
                 var regex = new RegExp(hitZodiac, 'g');
                 var newStr = str.replace(regex, `<span class="hit-box">${hitZodiac}</span>`);
                 return `<span class="txt-zodiac">${newStr}</span>`;
@@ -216,28 +211,25 @@
 
             function renderNumber(str) {
                 if (!hitNumber) return `<span class="txt-number">${str}</span>`;
-                // 精准替换数字：保证前后是点或开头结尾
                 var regex = new RegExp(`(^|\\.)(${hitNumber})(?=\\.|$)`, 'g');
                 var newStr = str.replace(regex, `$1<span class="hit-box">$2</span>`);
                 return `<span class="txt-number">${newStr}</span>`;
             }
 
-            // 处理底部文本的高亮显示
+            // ⭐ 核心修改：自动识别底部的 < > 并替换为高亮样式
             var finalBottom = bottom;
-            if (bottomHighlight && bottom.includes("X")) {
-                finalBottom = bottom.replace("X", `<span class="highlight-yellow-box">${bottomHighlight}</span>`);
-            } else if (bottomHighlight) {
-                finalBottom = bottom + " " + `<span class="highlight-yellow-box">${bottomHighlight}</span>`;
+            if (finalBottom.includes("<") && finalBottom.includes(">")) {
+                // 把 <xxx> 替换成黄底红字
+                finalBottom = finalBottom.replace(/<([^>]+)>/g, `<span class="highlight-yellow-box">$1</span>`);
             }
 
-            // 核心：自动截取逻辑 (修复号码截取)
+            // 自动截取
             var wuxiao = liuxiao.substring(0, 5);
             var sanxiao = liuxiao.substring(0, 3);
             var erxiao = liuxiao.substring(0, 2);
             
-            // 处理号码：把点号或空格都算作分隔符
             var maArray = liuma.split(/[\s,.]+/);
-            var wuma = maArray.slice(0, 5).join("."); // 输出统一用点
+            var wuma = maArray.slice(0, 5).join(".");
             var sanma = maArray.slice(0, 3).join(".");
             var erma = maArray.slice(0, 2).join(".");
 
