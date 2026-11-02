@@ -76,7 +76,7 @@
 
     /* 顶部标题栏 */
     .top-title { 
-        text-align: center; padding: 10px 0; font-size: 18px; font-weight: bold; 
+        text-align: center; padding: 10px 0; font-size: 17px; font-weight: bold; 
         color: #00BFFF; background: linear-gradient(to bottom, #111, #000); 
         border-bottom: 1px solid #333; 
     }
@@ -87,22 +87,25 @@
     }
     .data-row:last-child { border-bottom: none; }
 
-    /* 左右两列布局 */
+    /* ⭐ 核心修改：左边占 38%，右边占 62%，并且强制不换行 ⭐ */
     .col-left { 
-        width: 45%; padding: 0 10px; font-size: 18px; font-weight: bold; 
+        width: 38%; padding: 0 8px; font-size: 18px; font-weight: bold; 
         display: flex; align-items: center; border-right: 1px solid #333; box-sizing: border-box; 
+        white-space: nowrap; /* 强制不换行 */
     }
     .col-right { 
-        width: 55%; padding: 0 10px; font-size: 18px; font-weight: bold; 
+        width: 62%; padding: 0 8px; font-size: 18px; font-weight: bold; 
         display: flex; align-items: center; box-sizing: border-box;
+        white-space: nowrap; /* 强制不换行 */
+        overflow: hidden; /* 超出部分隐藏 */
     }
     
     .label-left { color: #FFFFFF; margin-right: 4px; white-space: nowrap;}
-    .txt-zodiac { color: #FF0000; letter-spacing: 1px;} 
+    .txt-zodiac { color: #FF0000; letter-spacing: 0px;} /* 取消字间距，省空间 */
     
     .label-right { color: #00FF00; margin-right: 4px; white-space: nowrap;} 
-    .txt-number { color: #FF0000; } 
-    .txt-suffix { color: #CC00FF; font-size: 12px; font-weight: normal; margin-left: 5px; white-space: nowrap;} 
+    .txt-number { color: #FF0000; font-size: 17px; } /* 号码稍微缩小一丁点 */
+    .txt-suffix { color: #CC00FF; font-size: 12px; font-weight: normal; margin-left: 4px; white-space: nowrap;} 
 
     /* 高亮样式 */
     .hit-box {
@@ -116,11 +119,11 @@
 
     /* 底部标语 */
     .bottom-title { 
-        text-align: center; padding: 12px 0; font-size: 18px; font-weight: bold; 
+        text-align: center; padding: 12px 0; font-size: 17px; font-weight: bold; 
         color: #FF0000; background-color: #050505; border-top: 1px solid #222; 
     }
     
-    /* ⭐ 底部高亮专属样式 ⭐ */
+    /* 底部高亮专属样式 */
     .highlight-yellow-box {
         background-color: #FFFF00;
         color: #FF0000 !important;
@@ -214,7 +217,7 @@
                 return `<span class="txt-number">${newStr}</span>`;
             }
 
-            // ⭐ 核心修改：保留尖括号，并将整体包裹在高亮样式中
+            // 保留尖括号并高亮
             var finalBottom = bottom;
             if (finalBottom.includes("<") && finalBottom.includes(">")) {
                 finalBottom = finalBottom.replace(/<([^>]+)>/g, `<span class="highlight-yellow-box">&lt;$1&gt;</span>`);
