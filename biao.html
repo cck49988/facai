@@ -87,25 +87,24 @@
     }
     .data-row:last-child { border-bottom: none; }
 
-    /* 左边占42% */
+    /* ⭐ 重点修改：左边压缩到 40%，右边扩大到 60% ⭐ */
     .col-left { 
-        width: 42%; padding: 0 5px; font-size: 18px; font-weight: bold; 
+        width: 40%; padding: 0 5px; font-size: 18px; font-weight: bold; 
         display: flex; align-items: center; border-right: 1px solid #333; 
         box-sizing: border-box; white-space: nowrap; 
     }
     
-    /* 右边占58% */
     .col-right { 
-        width: 58%; padding: 0 5px; font-size: 17px; font-weight: bold; 
+        width: 60%; padding: 0 8px; font-size: 18px; font-weight: bold; 
         display: flex; align-items: center; 
         box-sizing: border-box; white-space: nowrap; 
     }
     
-    .label-left { color: #FFFFFF; margin-right: 3px; white-space: nowrap; font-size: 17px;}
-    .txt-zodiac { color: #FF0000; letter-spacing: -0.5px;} /* 微调字间距 */
+    .label-left { color: #FFFFFF; margin-right: 2px; white-space: nowrap; font-size: 16px;}
+    .txt-zodiac { color: #FF0000; letter-spacing: -0.5px;} 
     
-    .label-right { color: #00FF00; margin-right: 3px; white-space: nowrap; font-size: 17px;} 
-    .txt-number { color: #FF0000; font-size: 16px; } /* 数字缩小1px */
+    .label-right { color: #00FF00; margin-right: 4px; white-space: nowrap; font-size: 16px;} 
+    .txt-number { color: #FF0000; font-size: 17px; } /* 数字稍微大一点点 */
     .txt-suffix { color: #CC00FF; font-size: 11px; font-weight: normal; margin-left: 3px; white-space: nowrap;} 
 
     /* 高亮样式 */
