@@ -76,36 +76,37 @@
 
     /* 顶部标题栏 */
     .top-title { 
-        text-align: center; padding: 10px 0; font-size: 17px; font-weight: bold; 
+        text-align: center; padding: 8px 0; font-size: 16px; font-weight: bold; 
         color: #00BFFF; background: linear-gradient(to bottom, #111, #000); 
         border-bottom: 1px solid #333; 
     }
 
-    /* 数据行 */
+    /* 数据行：坚决不换行 */
     .data-row { 
-        display: flex; border-bottom: 1px solid #333; min-height: 48px; align-items: center; 
+        display: flex; border-bottom: 1px solid #333; min-height: 45px; align-items: center; 
     }
     .data-row:last-child { border-bottom: none; }
 
-    /* ⭐ 核心修改：左边占 38%，右边占 62%，并且强制不换行 ⭐ */
+    /* 左边占42% */
     .col-left { 
-        width: 38%; padding: 0 8px; font-size: 18px; font-weight: bold; 
-        display: flex; align-items: center; border-right: 1px solid #333; box-sizing: border-box; 
-        white-space: nowrap; /* 强制不换行 */
+        width: 42%; padding: 0 5px; font-size: 18px; font-weight: bold; 
+        display: flex; align-items: center; border-right: 1px solid #333; 
+        box-sizing: border-box; white-space: nowrap; 
     }
+    
+    /* 右边占58% */
     .col-right { 
-        width: 62%; padding: 0 8px; font-size: 18px; font-weight: bold; 
-        display: flex; align-items: center; box-sizing: border-box;
-        white-space: nowrap; /* 强制不换行 */
-        overflow: hidden; /* 超出部分隐藏 */
+        width: 58%; padding: 0 5px; font-size: 17px; font-weight: bold; 
+        display: flex; align-items: center; 
+        box-sizing: border-box; white-space: nowrap; 
     }
     
-    .label-left { color: #FFFFFF; margin-right: 4px; white-space: nowrap;}
-    .txt-zodiac { color: #FF0000; letter-spacing: 0px;} /* 取消字间距，省空间 */
+    .label-left { color: #FFFFFF; margin-right: 3px; white-space: nowrap; font-size: 17px;}
+    .txt-zodiac { color: #FF0000; letter-spacing: -0.5px;} /* 微调字间距 */
     
-    .label-right { color: #00FF00; margin-right: 4px; white-space: nowrap;} 
-    .txt-number { color: #FF0000; font-size: 17px; } /* 号码稍微缩小一丁点 */
-    .txt-suffix { color: #CC00FF; font-size: 12px; font-weight: normal; margin-left: 4px; white-space: nowrap;} 
+    .label-right { color: #00FF00; margin-right: 3px; white-space: nowrap; font-size: 17px;} 
+    .txt-number { color: #FF0000; font-size: 16px; } /* 数字缩小1px */
+    .txt-suffix { color: #CC00FF; font-size: 11px; font-weight: normal; margin-left: 3px; white-space: nowrap;} 
 
     /* 高亮样式 */
     .hit-box {
@@ -113,13 +114,12 @@
         color: #FF0000 !important; 
         box-shadow: 0 0 8px #FFFF00; 
         display: inline; 
-        padding: 0;
-        margin: 0;
+        padding: 0; margin: 0;
     }
 
     /* 底部标语 */
     .bottom-title { 
-        text-align: center; padding: 12px 0; font-size: 17px; font-weight: bold; 
+        text-align: center; padding: 10px 0; font-size: 16px; font-weight: bold; 
         color: #FF0000; background-color: #050505; border-top: 1px solid #222; 
     }
     
@@ -190,7 +190,6 @@
             var hitZodiac = "";
             var hitNumber = "";
 
-            // 解析开奖数据
             if (parts.length >= 7 && parts[6].trim() !== "") {
                 var hitData = parts[6]; 
                 var zodiacMatch = hitData.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/);
@@ -202,7 +201,6 @@
 
             if (status === '挂') continue; 
 
-            // 渲染高亮
             function renderZodiac(str) {
                 if (!hitZodiac) return `<span class="txt-zodiac">${str}</span>`;
                 var regex = new RegExp(hitZodiac, 'g');
@@ -217,13 +215,11 @@
                 return `<span class="txt-number">${newStr}</span>`;
             }
 
-            // 保留尖括号并高亮
             var finalBottom = bottom;
             if (finalBottom.includes("<") && finalBottom.includes(">")) {
                 finalBottom = finalBottom.replace(/<([^>]+)>/g, `<span class="highlight-yellow-box">&lt;$1&gt;</span>`);
             }
 
-            // 自动截取
             var wuxiao = liuxiao.substring(0, 5);
             var sanxiao = liuxiao.substring(0, 3);
             var erxiao = liuxiao.substring(0, 2);
