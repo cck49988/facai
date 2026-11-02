@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>智能高亮连排生成器</title>
+<title>完美连中战绩生成器</title>
 <style>
     body {
         background-color: #333; 
@@ -24,14 +24,13 @@
     }
     .control-panel textarea {
         width: 100%;
-        height: 140px; 
+        height: 120px; 
         padding: 10px;
         box-sizing: border-box;
         border: 1px solid #ccc;
         border-radius: 4px;
         font-size: 14px;
         line-height: 1.5;
-        font-family: monospace;
         margin-bottom: 10px;
     }
     .control-panel button {
@@ -45,21 +44,22 @@
         font-weight: bold;
         cursor: pointer;
     }
-    .tip { font-size: 13px; color: #666; margin-bottom: 5px; line-height: 1.4;}
-    .highlight-text { color: #d32f2f; font-weight: bold;}
+    .tip { font-size: 13px; color: #666; margin-bottom: 5px; line-height: 1.5;}
+    .red-text { color: #d32f2f; font-weight: bold;}
 
-    /* ---------------- 截图区域：黑底霓虹连排 ---------------- */
+    /* ---------------- 截图区域 ---------------- */
     .container {
         width: 100%;
         max-width: 600px; 
         margin: 0 auto; 
         background-color: #000000; 
-        border: 2px solid #00ff00; /* 外边框绿色 */
+        border: 2px solid #00ff00; 
         box-sizing: border-box;
         position: relative;
         overflow: hidden;
     }
 
+    /* 水印 */
     .watermark {
         position: absolute; top: 0; left: 0; right: 0; bottom: 0;
         pointer-events: none; z-index: 10; 
@@ -74,51 +74,56 @@
     }
     .period-block:last-child { border-bottom: none; }
 
+    /* 顶部标题栏 */
     .top-title { 
         text-align: center; padding: 10px 0; font-size: 18px; font-weight: bold; 
-        color: #00BFFF; 
-        background: linear-gradient(to bottom, #111, #000); 
+        color: #00BFFF; background: linear-gradient(to bottom, #111, #000); 
         border-bottom: 1px solid #333; 
     }
 
+    /* 数据行 */
     .data-row { 
-        display: flex; border-bottom: 1px solid #333; height: 46px; align-items: center; 
+        display: flex; border-bottom: 1px solid #333; min-height: 48px; align-items: center; 
     }
     .data-row:last-child { border-bottom: none; }
 
-    .col-left, .col-right { 
-        flex: 1; padding: 0 10px; font-size: 20px; font-weight: bold; display: flex; align-items: center; height: 100%; 
+    /* 左右两列布局：左边35%，右边65%（给右边留足空间不换行） */
+    .col-left { 
+        width: 45%; padding: 0 10px; font-size: 18px; font-weight: bold; 
+        display: flex; align-items: center; border-right: 1px solid #333; box-sizing: border-box; 
+    }
+    .col-right { 
+        width: 55%; padding: 0 10px; font-size: 18px; font-weight: bold; 
+        display: flex; align-items: center; box-sizing: border-box;
     }
     
-    .col-left { border-right: 1px solid #333; }
-    .label-left { color: #FFFFFF; margin-right: 5px; }
+    .label-left { color: #FFFFFF; margin-right: 4px; white-space: nowrap;}
+    .txt-zodiac { color: #FF0000; letter-spacing: 1px;} 
     
-    /* 默认文字颜色 */
-    .txt-zodiac { color: #FF0000; } 
-    .label-right { color: #00FF00; margin-right: 5px; } 
+    .label-right { color: #00FF00; margin-right: 4px; white-space: nowrap;} 
     .txt-number { color: #FF0000; } 
-    .txt-suffix { color: #CC00FF; font-size: 14px; font-weight: normal; margin-left: 8px;} 
+    .txt-suffix { color: #CC00FF; font-size: 12px; font-weight: normal; margin-left: 5px; white-space: nowrap;} 
 
-    /* ⭐ 重点：完美贴合的高亮样式（取消内边距，紧紧贴着字） ⭐ */
+    /* ⭐ 高亮样式：紧贴字体，无内边距，发光 ⭐ */
     .hit-box {
         background-color: #FFFF00; 
         color: #FF0000 !important; 
-        padding: 0; /* 去掉了多余的内边距，不让它把字撑开 */
+        box-shadow: 0 0 8px #FFFF00; 
+        display: inline; 
+        padding: 0;
         margin: 0;
-        box-shadow: 0 0 8px #FFFF00; /* 微微发光 */
-        display: inline; /* 让高亮块像背景色一样附着在字上 */
     }
 
     /* 底部标语 */
     .bottom-title { 
-        text-align: center; padding: 12px 0; font-size: 20px; font-weight: bold; 
+        text-align: center; padding: 12px 0; font-size: 18px; font-weight: bold; 
         color: #FF0000; background-color: #050505; border-top: 1px solid #222; 
     }
     .highlight-yellow-box {
         background-color: #FFFF00;
-        color: #FF0000;
-        padding: 2px 5px;
-        margin: 0 3px;
+        color: #FF0000 !important;
+        padding: 2px 6px;
+        margin: 0 4px;
         display: inline-block;
     }
 </style>
@@ -129,10 +134,10 @@
 <div class="control-panel">
     <div class="tip">
         <b>格式：</b>期数|标语|六肖|6个号码|底部标语|中或挂|开[生肖][号码]|[高亮文字]<br>
-        <i>示例：</i><span class="highlight-text">...|内幕资料 X 为民造福!|中|开蛇26|&lt;③肖中&gt;</span>
+        <span class="red-text">示例：305期|昨天坐地铁...|兔虎蛇羊鸡马|30.06.47.11.41.27|内幕资料 <00> 为民造福!|中|开蛇26|&lt;③肖中&gt;</span>
     </div>
-    <!-- 默认填入了你想看的效果数据 -->
-    <textarea id="in_data" oninput="saveData()" placeholder="在这里输入数据..."></textarea>
+    <!-- 完美测试数据 -->
+    <textarea id="in_data" oninput="saveData()"></textarea>
     <button onclick="generate()">生成连排（并自动保存）</button>
 </div>
 
@@ -144,8 +149,7 @@
 
 <script>
     function saveData() {
-        var text = document.getElementById('in_data').value;
-        localStorage.setItem('myLotteryData', text);
+        localStorage.setItem('myLotteryData', document.getElementById('in_data').value);
     }
 
     window.onload = function() {
@@ -153,15 +157,14 @@
         if (savedData) {
             document.getElementById('in_data').value = savedData;
         } else {
-            // 这里的格式完美对应了你的图1
+            // 默认放两期测试数据，完美对应图1的效果
             document.getElementById('in_data').value = 
-"305期|昨天坐地铁打工,今天保时捷接送!|兔虎蛇羊鸡马|最新网址: 490.com|内幕资料 X 为民造福!|中|开蛇|<③肖中>\n" +
-"305期|昨天坐地铁打工,今天保时捷接送!|兔虎蛇羊鸡|理性投注,小赌怡情|内幕资料 X 为民造福!|中|开蛇|";
+"305期|昨天坐地铁打工,今天保时捷接送!|兔虎蛇羊鸡马|30.06.47.11.41.27|内幕资料 X 为民造福!|中|开蛇|<③肖中>\n" +
+"306期|昨天坐地铁打工,今天保时捷接送!|牛猴虎龙蛇羊|30.06.47.11.41.27|内幕资料 X 为民造福!|中|开虎26|<③肖中>";
         }
         generate(); 
     };
 
-    // 核心生成逻辑
     function generate() {
         var rawData = document.getElementById('in_data').value;
         var lines = rawData.split('\n');
@@ -176,16 +179,16 @@
 
             var qishu = parts[0];
             var title = parts[1];
-            var liuxiao = parts[2];
-            var liuma = parts[3];
+            var liuxiao = parts[2].trim();
+            var liuma = parts[3].trim();
             var bottom = parts[4];
-            var status = parts[5];
+            var status = parts[5].trim();
             
             var hitZodiac = "";
             var hitNumber = "";
             var bottomHighlight = "";
 
-            // 解析开奖数据 (比如 "开蛇26")
+            // 解析开奖数据 (比如 "开蛇26" 或 "开虎")
             if (parts.length >= 7 && parts[6].trim() !== "") {
                 var hitData = parts[6]; 
                 var zodiacMatch = hitData.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/);
@@ -195,23 +198,25 @@
                 if (numberMatch) hitNumber = numberMatch[0];
             }
 
-            // 解析底部高亮文字 (比如 "<③肖中>")
+            // 解析底部高亮文字
             if (parts.length >= 8) {
                 bottomHighlight = parts[7].trim();
             }
 
-            // 过滤掉挂
             if (status === '挂') continue; 
 
             // --- 渲染高亮 ---
             function renderZodiac(str) {
                 if (!hitZodiac) return `<span class="txt-zodiac">${str}</span>`;
-                var newStr = str.split(hitZodiac).join(`<span class="hit-box">${hitZodiac}</span>`);
+                // 用正则替换，不用split，防止出现多余的闭合标签
+                var regex = new RegExp(hitZodiac, 'g');
+                var newStr = str.replace(regex, `<span class="hit-box">${hitZodiac}</span>`);
                 return `<span class="txt-zodiac">${newStr}</span>`;
             }
 
             function renderNumber(str) {
                 if (!hitNumber) return `<span class="txt-number">${str}</span>`;
+                // 精准替换数字：保证前后是点或开头结尾
                 var regex = new RegExp(`(^|\\.)(${hitNumber})(?=\\.|$)`, 'g');
                 var newStr = str.replace(regex, `$1<span class="hit-box">$2</span>`);
                 return `<span class="txt-number">${newStr}</span>`;
@@ -225,15 +230,16 @@
                 finalBottom = bottom + " " + `<span class="highlight-yellow-box">${bottomHighlight}</span>`;
             }
 
-            // 自动截取
+            // 核心：自动截取逻辑 (修复号码截取)
             var wuxiao = liuxiao.substring(0, 5);
             var sanxiao = liuxiao.substring(0, 3);
             var erxiao = liuxiao.substring(0, 2);
             
-            var maArray = liuma.split(/[\s,]+/); // 兼容空格和逗号分隔
-            var wuma = maArray.slice(0, 5).join(" ");
-            var sanma = maArray.slice(0, 3).join(" ");
-            var erma = maArray.slice(0, 2).join(" ");
+            // 处理号码：把点号或空格都算作分隔符
+            var maArray = liuma.split(/[\s,.]+/);
+            var wuma = maArray.slice(0, 5).join("."); // 输出统一用点
+            var sanma = maArray.slice(0, 3).join(".");
+            var erma = maArray.slice(0, 2).join(".");
 
             outputHTML += `
             <div class="period-block">
