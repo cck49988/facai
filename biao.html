@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>霓虹连排生成器</title>
+<title>连中战绩生成器</title>
 <style>
     body {
-        background-color: #333; /* 网页背景深灰，凸显截图区域 */
+        background-color: #333; 
         margin: 0;
         padding: 10px 0;
         font-family: "Microsoft YaHei", "SimHei", sans-serif;
@@ -22,14 +22,17 @@
         border-radius: 8px;
         box-sizing: border-box;
     }
-    .control-panel input {
+    .control-panel textarea {
         width: 100%;
-        padding: 8px;
-        margin-bottom: 8px;
+        height: 150px; 
+        padding: 10px;
         box-sizing: border-box;
         border: 1px solid #ccc;
         border-radius: 4px;
         font-size: 14px;
+        line-height: 1.5;
+        font-family: monospace;
+        margin-bottom: 10px;
     }
     .control-panel button {
         width: 100%;
@@ -42,20 +45,21 @@
         font-weight: bold;
         cursor: pointer;
     }
+    .tip { font-size: 13px; color: #666; margin-bottom: 5px; }
 
-    /* ---------------- 截图区域：黑底霓虹风格 ---------------- */
+    /* ---------------- 截图区域：黑底霓虹连排 ---------------- */
     .container {
         width: 100%;
-        max-width: 600px; /* 控制截图宽度 */
+        max-width: 600px; 
         margin: 0 auto; 
-        background-color: #000000; /* 纯黑背景 */
-        border: 2px solid #00ff00; /* 外边框绿色 */
+        background-color: #000000; 
+        border: 2px solid #00ff00; 
         box-sizing: border-box;
         position: relative;
         overflow: hidden;
     }
 
-    /* 水印 (暗色，在黑底上稍微显现) */
+    /* 水印 */
     .watermark {
         position: absolute; top: 0; left: 0; right: 0; bottom: 0;
         pointer-events: none; z-index: 10; 
@@ -63,165 +67,123 @@
         background-repeat: repeat;
     }
 
-    /* 顶部标题栏 */
-    .top-title {
-        text-align: center;
-        padding: 10px 0;
-        font-size: 18px;
-        font-weight: bold;
-        color: #00BFFF; /* 亮蓝色 */
-        background: linear-gradient(to bottom, #000, #222);
-        border-bottom: 1px solid #333;
-    }
+    .period-block { border-bottom: 2px solid #333; margin-bottom: 5px; }
+    .period-block:last-child { border-bottom: none; }
 
-    /* 数据行 */
-    .data-row {
-        display: flex;
-        border-bottom: 2px solid #222; /* 行间距分割线 */
-        height: 45px;
-        align-items: center;
-    }
-    .data-row:last-child {
-        border-bottom: none;
-    }
-
-    .col-left, .col-right {
-        flex: 1;
-        padding: 0 10px;
-        font-size: 18px;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        height: 100%;
-    }
-
-    /* 左侧列 */
+    .top-title { text-align: center; padding: 8px 0; font-size: 17px; font-weight: bold; color: #00BFFF; background: linear-gradient(to bottom, #111, #000); border-bottom: 1px solid #333; }
+    .data-row { display: flex; border-bottom: 1px solid #333; height: 42px; align-items: center; }
+    .data-row:last-child { border-bottom: none; }
+    .col-left, .col-right { flex: 1; padding: 0 10px; font-size: 18px; font-weight: bold; display: flex; align-items: center; height: 100%; }
     .col-left { border-right: 1px solid #333; }
     .label-left { color: #FFFFFF; margin-right: 2px; }
-    .txt-zodiac { color: #FF0000; } /* 生肖红色 */
-    
-    /* 右侧列 */
-    .label-right { color: #00FF00; margin-right: 2px; } /* 右侧标签绿色 */
-    .txt-number { color: #FF0000; } /* 号码红色 */
-    .txt-suffix { color: #CC00FF; font-size: 13px; font-weight: normal; margin-left: 5px;} /* 后缀紫色小字 */
-
-    /* 底部高亮区 */
-    .bottom-title {
-        text-align: center;
-        padding: 12px 0;
-        font-size: 18px;
-        font-weight: bold;
-        color: #FF0000;
-        background-color: #111;
-        border-top: 1px solid #333;
-    }
-    .bottom-title span {
-        color: #00FF00;
-    }
-
-    /* 特殊高亮块 (类似图2的 ③肖中) */
-    .highlight-yellow { color: #FFFF00; }
+    .txt-zodiac { color: #FF0000; } 
+    .label-right { color: #00FF00; margin-right: 2px; } 
+    .txt-number { color: #FF0000; } 
+    .txt-suffix { color: #CC00FF; font-size: 13px; font-weight: normal; margin-left: 5px;} 
+    .bottom-title { text-align: center; padding: 10px 0; font-size: 18px; font-weight: bold; color: #FF0000; background-color: #111; border-top: 1px solid #333; }
 </style>
 </head>
 <body>
 
 <!-- ================= 网页修改面板 ================= -->
 <div class="control-panel">
-    <input type="text" id="in_qishu" value="306期" placeholder="期数 (如: 306期)">
-    <input type="text" id="in_title" value="昨天坐地铁打工,今天保时捷接送!" placeholder="顶部标语">
-    <input type="text" id="in_liuxiao" value="牛猴虎龙蛇羊" placeholder="填满6个生肖 (中间不要空格)">
-    <input type="text" id="in_liuma" value="30.06.47.11.41.27" placeholder="填满6个号码 (用点号隔开)">
-    <input type="text" id="in_bottom" value="内幕资料 <牛30> 为民造福!" placeholder="底部标语">
-    <button onclick="updateTable()">生成预览 (请使用手机截图)</button>
+    <div class="tip">
+        <b>格式：</b>期数|标语|六肖|6个号码|底部标语|中或挂<br>
+        <i>(中间用竖线 | 隔开，号码用点 . 隔开。写了“挂”的会自动消失)</i>
+    </div>
+    <!-- 注意这里加了 oninput 事件，打字就会自动保存 -->
+    <textarea id="in_data" oninput="saveData()" placeholder="在这里输入数据..."></textarea>
+    <button onclick="generate()">生成连排（并自动保存）</button>
 </div>
 
 <!-- ================= 截图区域 ================= -->
 <div class="container" id="screenshot-area">
     <div class="watermark"></div>
-
-    <!-- 顶部 -->
-    <div class="top-title">
-        <span id="show_qishu">306期</span>:<span id="show_title">昨天坐地铁打工,今天保时捷接送!</span>
-    </div>
-
-    <!-- 第一行：六肖 -->
-    <div class="data-row">
-        <div class="col-left">
-            <span class="label-left">六肖:</span><span class="txt-zodiac" id="show_liuxiao">牛猴虎龙蛇羊</span>
-        </div>
-        <div class="col-right">
-            <span class="label-right">⑥码:</span><span class="txt-number" id="show_liuma">30.06.47.11.41.27</span>
-        </div>
-    </div>
-
-    <!-- 第二行：五肖 -->
-    <div class="data-row">
-        <div class="col-left">
-            <span class="label-left">五肖:</span><span class="txt-zodiac" id="show_wuxiao">牛猴虎龙蛇</span>
-        </div>
-        <div class="col-right">
-            <span class="label-right">⑤码:</span><span class="txt-number" id="show_wuma">30.06.47.11.41</span>
-        </div>
-    </div>
-
-    <!-- 第三行：三肖 (带后缀文字) -->
-    <div class="data-row">
-        <div class="col-left">
-            <span class="label-left">三肖:</span><span class="txt-zodiac" id="show_sanxiao">牛猴虎</span><span class="txt-suffix">~轻松中</span>
-        </div>
-        <div class="col-right">
-            <span class="label-right">③码:</span><span class="txt-number" id="show_sanma">30.06.47</span><span class="txt-suffix">~小投注轻松玩</span>
-        </div>
-    </div>
-
-    <!-- 第四行：二肖 (带后缀文字) -->
-    <div class="data-row">
-        <div class="col-left">
-            <span class="label-left">二肖:</span><span class="txt-zodiac" id="show_erxiao">牛猴</span><span class="txt-suffix">~一注出奇迹</span>
-        </div>
-        <div class="col-right">
-            <span class="label-right">②码:</span><span class="txt-number" id="show_erma">30.06</span><span class="txt-suffix">~运气来了挡不住</span>
-        </div>
-    </div>
-
-    <!-- 底部 -->
-    <div class="bottom-title">
-        <span id="show_qishu2">306期</span>:<span id="show_bottom">内幕资料 <span class="highlight-yellow">&lt;牛30&gt;</span> 为民造福!</span>
-    </div>
+    <div id="output-area"></div>
 </div>
 
 <script>
-    function updateTable() {
-        var qishu = document.getElementById('in_qishu').value;
-        var title = document.getElementById('in_title').value;
-        var liuxiao = document.getElementById('in_liuxiao').value;
-        var liuma = document.getElementById('in_liuma').value;
-        var bottom = document.getElementById('in_bottom').value;
-
-        // 更新基础文字
-        document.getElementById('show_qishu').innerText = qishu;
-        document.getElementById('show_title').innerText = title;
-        document.getElementById('show_qishu2').innerText = qishu;
-        document.getElementById('show_bottom').innerHTML = bottom;
-
-        // 更新六肖/六码
-        document.getElementById('show_liuxiao').innerText = liuxiao;
-        document.getElementById('show_liuma').innerText = liuma;
-
-        // 自动截取生肖
-        document.getElementById('show_wuxiao').innerText = liuxiao.substring(0, 5);
-        document.getElementById('show_sanxiao').innerText = liuxiao.substring(0, 3);
-        document.getElementById('show_erxiao').innerText = liuxiao.substring(0, 2);
-
-        // 自动截取号码 (按点号分割)
-        var maArray = liuma.split('.');
-        document.getElementById('show_wuma').innerText = maArray.slice(0, 5).join(".");
-        document.getElementById('show_sanma').innerText = maArray.slice(0, 3).join(".");
-        document.getElementById('show_erma').innerText = maArray.slice(0, 2).join(".");
+    // 1. 自动保存功能：当你打字时，自动存入浏览器
+    function saveData() {
+        var text = document.getElementById('in_data').value;
+        localStorage.setItem('myLotteryData', text); // 存进本地硬盘
     }
 
-    // 页面刚打开时，自动执行一次
-    window.onload = updateTable;
+    // 2. 页面加载时：如果有上次保存的数据，自动填进去
+    window.onload = function() {
+        var savedData = localStorage.getItem('myLotteryData');
+        if (savedData) {
+            document.getElementById('in_data').value = savedData;
+        } else {
+            // 如果是第一次打开，给个默认模板
+            document.getElementById('in_data').value = "306期|昨天坐地铁打工,今天保时捷接送!|牛猴虎龙蛇羊|30.06.47.11.41.27|内幕资料 <③肖中> 为民造福!|中";
+        }
+        generate(); // 自动生成预览
+    };
+
+    // 3. 生成逻辑
+    function generate() {
+        var rawData = document.getElementById('in_data').value;
+        var lines = rawData.split('\n');
+        var outputHTML = '';
+
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            if (line === '') continue; 
+
+            var parts = line.split('|');
+            if (parts.length < 6) continue;
+
+            var qishu = parts[0];
+            var title = parts[1];
+            var liuxiao = parts[2];
+            var liuma = parts[3];
+            var bottom = parts[4];
+            var status = parts[5];
+
+            // 过滤掉挂
+            if (status === '挂') continue; 
+
+            // 自动截取
+            var wuxiao = liuxiao.substring(0, 5);
+            var sanxiao = liuxiao.substring(0, 3);
+            var erxiao = liuxiao.substring(0, 2);
+            
+            var maArray = liuma.split('.');
+            var wuma = maArray.slice(0, 5).join(".");
+            var sanma = maArray.slice(0, 3).join(".");
+            var erma = maArray.slice(0, 2).join(".");
+
+            outputHTML += `
+            <div class="period-block">
+                <div class="top-title">${qishu}:${title}</div>
+                <div class="data-row">
+                    <div class="col-left"><span class="label-left">六肖:</span><span class="txt-zodiac">${liuxiao}</span></div>
+                    <div class="col-right"><span class="label-right">⑥码:</span><span class="txt-number">${liuma}</span></div>
+                </div>
+                <div class="data-row">
+                    <div class="col-left"><span class="label-left">五肖:</span><span class="txt-zodiac">${wuxiao}</span></div>
+                    <div class="col-right"><span class="label-right">⑤码:</span><span class="txt-number">${wuma}</span></div>
+                </div>
+                <div class="data-row">
+                    <div class="col-left"><span class="label-left">三肖:</span><span class="txt-zodiac">${sanxiao}</span><span class="txt-suffix">~轻松中</span></div>
+                    <div class="col-right"><span class="label-right">③码:</span><span class="txt-number">${sanma}</span><span class="txt-suffix">~小投注轻松玩</span></div>
+                </div>
+                <div class="data-row">
+                    <div class="col-left"><span class="label-left">二肖:</span><span class="txt-zodiac">${erxiao}</span><span class="txt-suffix">~一注出奇迹</span></div>
+                    <div class="col-right"><span class="label-right">②码:</span><span class="txt-number">${erma}</span><span class="txt-suffix">~运气来了挡不住</span></div>
+                </div>
+                <div class="bottom-title">${qishu}:${bottom}</div>
+            </div>
+            `;
+        }
+
+        if(outputHTML === '') {
+            outputHTML = '<div style="color:#fff; text-align:center; padding: 20px;">全部都是“挂”，没有可以显示的数据。</div>';
+        }
+
+        document.getElementById('output-area').innerHTML = outputHTML;
+    }
 </script>
 
 </body>
