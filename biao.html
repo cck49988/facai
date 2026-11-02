@@ -54,7 +54,7 @@
         max-width: 600px; 
         margin: 0 auto; 
         background-color: #000000; 
-        border: 2px solid #00ff00; 
+        border: 2px solid #00ff00; /* 外边框绿色 */
         box-sizing: border-box;
         position: relative;
         overflow: hidden;
@@ -99,21 +99,27 @@
     .txt-number { color: #FF0000; } 
     .txt-suffix { color: #CC00FF; font-size: 14px; font-weight: normal; margin-left: 8px;} 
 
-    /* ⭐ 中了之后的特效高亮样式 ⭐ */
+    /* ⭐ 重点：完美贴合的高亮样式（取消内边距，紧紧贴着字） ⭐ */
     .hit-box {
-        background-color: #FFFF00; /* 亮黄色背景 */
-        color: #FF0000 !important; /* 强制红色字体 */
-        padding: 0 4px;
-        border-radius: 4px;
-        font-size: 22px;
-        box-shadow: 0 0 10px #FFFF00; /* 发光效果 */
-        margin-right: 2px;
-        display: inline-block;
+        background-color: #FFFF00; 
+        color: #FF0000 !important; 
+        padding: 0; /* 去掉了多余的内边距，不让它把字撑开 */
+        margin: 0;
+        box-shadow: 0 0 8px #FFFF00; /* 微微发光 */
+        display: inline; /* 让高亮块像背景色一样附着在字上 */
     }
 
+    /* 底部标语 */
     .bottom-title { 
         text-align: center; padding: 12px 0; font-size: 20px; font-weight: bold; 
         color: #FF0000; background-color: #050505; border-top: 1px solid #222; 
+    }
+    .highlight-yellow-box {
+        background-color: #FFFF00;
+        color: #FF0000;
+        padding: 2px 5px;
+        margin: 0 3px;
+        display: inline-block;
     }
 </style>
 </head>
@@ -122,9 +128,10 @@
 <!-- ================= 网页修改面板 ================= -->
 <div class="control-panel">
     <div class="tip">
-        <b>格式：</b>期数|标语|六肖|6个号码|底部标语|中或挂|开[生肖][号码]<br>
-        <i>示例：</i><span class="highlight-text">...|中|开蛇26</span> <i>(末尾加上开奖结果，自动高亮)</i>
+        <b>格式：</b>期数|标语|六肖|6个号码|底部标语|中或挂|开[生肖][号码]|[高亮文字]<br>
+        <i>示例：</i><span class="highlight-text">...|内幕资料 X 为民造福!|中|开蛇26|&lt;③肖中&gt;</span>
     </div>
+    <!-- 默认填入了你想看的效果数据 -->
     <textarea id="in_data" oninput="saveData()" placeholder="在这里输入数据..."></textarea>
     <button onclick="generate()">生成连排（并自动保存）</button>
 </div>
@@ -146,10 +153,10 @@
         if (savedData) {
             document.getElementById('in_data').value = savedData;
         } else {
-            // 第一次打开时的默认模板
+            // 这里的格式完美对应了你的图1
             document.getElementById('in_data').value = 
-"306期|昨天坐地铁打工,今天保时捷接送!|牛猴虎龙蛇羊|30.06.47.11.41.27|内幕资料 <蛇26> 为民造福!|中|开蛇26\n" +
-"307期|昨天坐地铁打工,今天保时捷接送!|鼠牛虎兔龙马|01.12.23.34.45.08|内幕资料 <③肖中> 为民造福!|挂|开羊33";
+"305期|昨天坐地铁打工,今天保时捷接送!|兔虎蛇羊鸡马|最新网址: 490.com|内幕资料 X 为民造福!|中|开蛇|<③肖中>\n" +
+"305期|昨天坐地铁打工,今天保时捷接送!|兔虎蛇羊鸡|理性投注,小赌怡情|内幕资料 X 为民造福!|中|开蛇|";
         }
         generate(); 
     };
@@ -174,12 +181,13 @@
             var bottom = parts[4];
             var status = parts[5];
             
-            // 解析开奖数据 (比如 "开蛇26")
             var hitZodiac = "";
             var hitNumber = "";
-            if (parts.length >= 7) {
-                var hitData = parts[6]; // "开蛇26"
-                // 用正则提取里面的文字和数字
+            var bottomHighlight = "";
+
+            // 解析开奖数据 (比如 "开蛇26")
+            if (parts.length >= 7 && parts[6].trim() !== "") {
+                var hitData = parts[6]; 
                 var zodiacMatch = hitData.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/);
                 if (zodiacMatch) hitZodiac = zodiacMatch[0];
                 
@@ -187,25 +195,34 @@
                 if (numberMatch) hitNumber = numberMatch[0];
             }
 
+            // 解析底部高亮文字 (比如 "<③肖中>")
+            if (parts.length >= 8) {
+                bottomHighlight = parts[7].trim();
+            }
+
             // 过滤掉挂
             if (status === '挂') continue; 
 
-            // --- 渲染带高亮的函数 ---
-            // 如果文字里有开奖生肖，就用特效包裹；否则正常输出
+            // --- 渲染高亮 ---
             function renderZodiac(str) {
                 if (!hitZodiac) return `<span class="txt-zodiac">${str}</span>`;
-                // 替换匹配到的字
                 var newStr = str.split(hitZodiac).join(`<span class="hit-box">${hitZodiac}</span>`);
                 return `<span class="txt-zodiac">${newStr}</span>`;
             }
 
-            // 如果号码里有开奖号码，就用特效包裹
             function renderNumber(str) {
                 if (!hitNumber) return `<span class="txt-number">${str}</span>`;
-                // 用正则精准替换数字（防止替换错小号）
                 var regex = new RegExp(`(^|\\.)(${hitNumber})(?=\\.|$)`, 'g');
                 var newStr = str.replace(regex, `$1<span class="hit-box">$2</span>`);
                 return `<span class="txt-number">${newStr}</span>`;
+            }
+
+            // 处理底部文本的高亮显示
+            var finalBottom = bottom;
+            if (bottomHighlight && bottom.includes("X")) {
+                finalBottom = bottom.replace("X", `<span class="highlight-yellow-box">${bottomHighlight}</span>`);
+            } else if (bottomHighlight) {
+                finalBottom = bottom + " " + `<span class="highlight-yellow-box">${bottomHighlight}</span>`;
             }
 
             // 自动截取
@@ -213,10 +230,10 @@
             var sanxiao = liuxiao.substring(0, 3);
             var erxiao = liuxiao.substring(0, 2);
             
-            var maArray = liuma.split('.');
-            var wuma = maArray.slice(0, 5).join(".");
-            var sanma = maArray.slice(0, 3).join(".");
-            var erma = maArray.slice(0, 2).join(".");
+            var maArray = liuma.split(/[\s,]+/); // 兼容空格和逗号分隔
+            var wuma = maArray.slice(0, 5).join(" ");
+            var sanma = maArray.slice(0, 3).join(" ");
+            var erma = maArray.slice(0, 2).join(" ");
 
             outputHTML += `
             <div class="period-block">
@@ -243,7 +260,7 @@
                 </div>
                 
                 <div class="bottom-title">
-                    ${qishu}:${bottom}
+                    ${qishu}:${finalBottom}
                 </div>
             </div>
             `;
