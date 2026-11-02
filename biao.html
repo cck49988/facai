@@ -24,7 +24,7 @@
     }
     .control-panel textarea {
         width: 100%;
-        height: 150px; 
+        height: 120px; 
         padding: 10px;
         box-sizing: border-box;
         border: 1px solid #ccc;
@@ -53,7 +53,7 @@
         max-width: 600px; 
         margin: 0 auto; 
         background-color: #000000; 
-        border: 2px solid #00ff00; 
+        border: 2px solid #00ff00; /* 绿边 */
         box-sizing: border-box;
         position: relative;
         overflow: hidden;
@@ -67,20 +67,70 @@
         background-repeat: repeat;
     }
 
-    .period-block { border-bottom: 2px solid #333; margin-bottom: 5px; }
+    .period-block { 
+        border-bottom: 2px solid #222; /* 期数之间的分割线 */
+        padding-bottom: 5px;
+        margin-bottom: 5px;
+    }
     .period-block:last-child { border-bottom: none; }
 
-    .top-title { text-align: center; padding: 8px 0; font-size: 17px; font-weight: bold; color: #00BFFF; background: linear-gradient(to bottom, #111, #000); border-bottom: 1px solid #333; }
-    .data-row { display: flex; border-bottom: 1px solid #333; height: 42px; align-items: center; }
+    /* 顶部期数栏 - 浅蓝色 */
+    .top-title { 
+        text-align: center; 
+        padding: 10px 0; 
+        font-size: 18px; 
+        font-weight: bold; 
+        color: #00BFFF; /* 亮蓝色 */
+        background: linear-gradient(to bottom, #111, #000); 
+        border-bottom: 1px solid #333; 
+    }
+
+    /* 数据行 */
+    .data-row { 
+        display: flex; 
+        border-bottom: 1px solid #333; 
+        height: 46px; 
+        align-items: center; 
+    }
     .data-row:last-child { border-bottom: none; }
-    .col-left, .col-right { flex: 1; padding: 0 10px; font-size: 18px; font-weight: bold; display: flex; align-items: center; height: 100%; }
+
+    .col-left, .col-right { 
+        flex: 1; 
+        padding: 0 10px; 
+        font-size: 20px; /* 字体加大 */
+        font-weight: bold; 
+        display: flex; 
+        align-items: center; 
+        height: 100%; 
+    }
+    
+    /* 左右分割线 */
     .col-left { border-right: 1px solid #333; }
-    .label-left { color: #FFFFFF; margin-right: 2px; }
-    .txt-zodiac { color: #FF0000; } 
-    .label-right { color: #00FF00; margin-right: 2px; } 
-    .txt-number { color: #FF0000; } 
-    .txt-suffix { color: #CC00FF; font-size: 13px; font-weight: normal; margin-left: 5px;} 
-    .bottom-title { text-align: center; padding: 10px 0; font-size: 18px; font-weight: bold; color: #FF0000; background-color: #111; border-top: 1px solid #333; }
+    
+    .label-left { color: #FFFFFF; margin-right: 5px; }
+    .txt-zodiac { color: #FF0000; } /* 左边生肖强制红色 */
+    
+    .label-right { color: #00FF00; margin-right: 5px; } /* 右边标签强制绿色 */
+    .txt-number { color: #FF0000; } /* 号码强制红色 */
+    
+    .txt-suffix { 
+        color: #CC00FF; /* 后缀强制紫色 */
+        font-size: 14px; 
+        font-weight: normal; 
+        margin-left: 8px;
+    } 
+
+    /* 底部高亮区 - 红色 */
+    .bottom-title { 
+        text-align: center; 
+        padding: 12px 0; 
+        font-size: 20px; 
+        font-weight: bold; 
+        color: #FF0000; 
+        background-color: #050505; 
+        border-top: 1px solid #222; 
+    }
+    .highlight-yellow { color: #FFFF00; } /* 底部特殊字黄色 */
 </style>
 </head>
 <body>
@@ -89,9 +139,9 @@
 <div class="control-panel">
     <div class="tip">
         <b>格式：</b>期数|标语|六肖|6个号码|底部标语|中或挂<br>
-        <i>(中间用竖线 | 隔开，号码用点 . 隔开。写了“挂”的会自动消失)</i>
+        <i>(中间用竖线 | 隔开，号码用点 . 隔开)</i>
     </div>
-    <!-- 注意这里加了 oninput 事件，打字就会自动保存 -->
+    <!-- 这里的数据会自动保存在你的手机里 -->
     <textarea id="in_data" oninput="saveData()" placeholder="在这里输入数据..."></textarea>
     <button onclick="generate()">生成连排（并自动保存）</button>
 </div>
@@ -103,25 +153,26 @@
 </div>
 
 <script>
-    // 1. 自动保存功能：当你打字时，自动存入浏览器
+    // 自动保存数据
     function saveData() {
         var text = document.getElementById('in_data').value;
-        localStorage.setItem('myLotteryData', text); // 存进本地硬盘
+        localStorage.setItem('myLotteryData', text);
     }
 
-    // 2. 页面加载时：如果有上次保存的数据，自动填进去
     window.onload = function() {
         var savedData = localStorage.getItem('myLotteryData');
         if (savedData) {
             document.getElementById('in_data').value = savedData;
         } else {
-            // 如果是第一次打开，给个默认模板
-            document.getElementById('in_data').value = "306期|昨天坐地铁打工,今天保时捷接送!|牛猴虎龙蛇羊|30.06.47.11.41.27|内幕资料 <③肖中> 为民造福!|中";
+            // 第一次打开时的默认模板（两期演示）
+            document.getElementById('in_data').value = 
+"306期|昨天坐地铁打工,今天保时捷接送!|牛猴虎龙蛇羊|30.06.47.11.41.27|内幕资料 <③肖中> 为民造福!|中\n" +
+"307期|昨天坐地铁打工,今天保时捷接送!|牛猴虎龙蛇羊|30.06.47.11.41.27|内幕资料 <③肖中> 为民造福!|中";
         }
-        generate(); // 自动生成预览
+        generate(); 
     };
 
-    // 3. 生成逻辑
+    // 生成逻辑
     function generate() {
         var rawData = document.getElementById('in_data').value;
         var lines = rawData.split('\n');
@@ -141,7 +192,7 @@
             var bottom = parts[4];
             var status = parts[5];
 
-            // 过滤掉挂
+            // 过滤掉写了“挂”的期数
             if (status === '挂') continue; 
 
             // 自动截取
@@ -154,26 +205,50 @@
             var sanma = maArray.slice(0, 3).join(".");
             var erma = maArray.slice(0, 2).join(".");
 
+            // 拼接 HTML：严格使用 class 控制颜色
             outputHTML += `
             <div class="period-block">
                 <div class="top-title">${qishu}:${title}</div>
+                
                 <div class="data-row">
-                    <div class="col-left"><span class="label-left">六肖:</span><span class="txt-zodiac">${liuxiao}</span></div>
-                    <div class="col-right"><span class="label-right">⑥码:</span><span class="txt-number">${liuma}</span></div>
+                    <div class="col-left">
+                        <span class="label-left">六肖:</span><span class="txt-zodiac">${liuxiao}</span>
+                    </div>
+                    <div class="col-right">
+                        <span class="label-right">⑥码:</span><span class="txt-number">${liuma}</span>
+                    </div>
                 </div>
+                
                 <div class="data-row">
-                    <div class="col-left"><span class="label-left">五肖:</span><span class="txt-zodiac">${wuxiao}</span></div>
-                    <div class="col-right"><span class="label-right">⑤码:</span><span class="txt-number">${wuma}</span></div>
+                    <div class="col-left">
+                        <span class="label-left">五肖:</span><span class="txt-zodiac">${wuxiao}</span>
+                    </div>
+                    <div class="col-right">
+                        <span class="label-right">⑤码:</span><span class="txt-number">${wuma}</span>
+                    </div>
                 </div>
+                
                 <div class="data-row">
-                    <div class="col-left"><span class="label-left">三肖:</span><span class="txt-zodiac">${sanxiao}</span><span class="txt-suffix">~轻松中</span></div>
-                    <div class="col-right"><span class="label-right">③码:</span><span class="txt-number">${sanma}</span><span class="txt-suffix">~小投注轻松玩</span></div>
+                    <div class="col-left">
+                        <span class="label-left">三肖:</span><span class="txt-zodiac">${sanxiao}</span><span class="txt-suffix">~轻松中</span>
+                    </div>
+                    <div class="col-right">
+                        <span class="label-right">③码:</span><span class="txt-number">${sanma}</span><span class="txt-suffix">~小投注轻松玩</span>
+                    </div>
                 </div>
+                
                 <div class="data-row">
-                    <div class="col-left"><span class="label-left">二肖:</span><span class="txt-zodiac">${erxiao}</span><span class="txt-suffix">~一注出奇迹</span></div>
-                    <div class="col-right"><span class="label-right">②码:</span><span class="txt-number">${erma}</span><span class="txt-suffix">~运气来了挡不住</span></div>
+                    <div class="col-left">
+                        <span class="label-left">二肖:</span><span class="txt-zodiac">${erxiao}</span><span class="txt-suffix">~一注出奇迹</span>
+                    </div>
+                    <div class="col-right">
+                        <span class="label-right">②码:</span><span class="txt-number">${erma}</span><span class="txt-suffix">~运气来了挡不住</span>
+                    </div>
                 </div>
-                <div class="bottom-title">${qishu}:${bottom}</div>
+                
+                <div class="bottom-title">
+                    ${qishu}:${bottom}
+                </div>
             </div>
             `;
         }
