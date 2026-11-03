@@ -5,34 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>发财~多期连排版</title>
 <style>
+    /* 核心：防止手机端出现左右滑动 */
+    * {
+        box-sizing: border-box;
+    }
     body {
         background-color: #f5f5f5; 
         margin: 0;
         padding: 10px 0;
         font-family: "Microsoft YaHei", "宋体", sans-serif;
+        overflow-x: hidden; /* 强制隐藏横向滚动条 */
     }
     
     /* ---------------- 顶部输入区 ---------------- */
     .control-panel {
-        width: 420px;
+        width: 95%;
+        max-width: 420px;
         margin: 0 auto 10px auto;
         background: #fff;
         padding: 12px;
         border-radius: 8px;
         box-shadow: 0 0 5px rgba(0,0,0,0.1);
-        box-sizing: border-box;
     }
     .control-panel textarea {
         width: 100%;
         height: 100px;
         padding: 8px;
         margin-bottom: 8px;
-        box-sizing: border-box;
         border: 1px solid #ccc;
         border-radius: 4px;
         font-size: 14px;
         font-family: monospace;
         line-height: 1.5;
+        resize: none;
     }
     .tip {
         font-size: 12px; color: #666; margin-bottom: 5px;
@@ -54,13 +59,14 @@
     .btn-update { background-color: #4CAF50; }
     .btn-download { background-color: #FF9800; }
 
-    /* ---------------- 截图区域样式 (完全保留原版大小) ---------------- */
+    /* ---------------- 截图区域样式 ---------------- */
     .container {
-        width: 420px; 
+        width: 95%;
+        max-width: 420px; 
         margin: 0 auto; 
         background-color: #ffffff; 
         position: relative; 
-        overflow: hidden; 
+        overflow: hidden; /* 防止内部内容溢出 */
     }
     
     /* 水印 */
@@ -82,6 +88,8 @@
         position: relative;
         z-index: 1; 
         width: 100%;
+        table-layout: fixed; /* 强制表格固定宽度，不因内容撑破 */
+        word-wrap: break-word; /* 允许内容换行，防止撑破 */
     }
     .qxtable td {
         padding: 6px 4px; 
@@ -113,7 +121,6 @@
         302期|发财机会天天见|牛鸡猪狗马鼠|06 46 44 21 25 43|开牛06<br>
         303期|发财机会天天见|鼠牛虎兔龙蛇|01 12 23 34 45 56|挂
     </div>
-    <!-- 改为大文本框 -->
     <textarea id="in_data" oninput="saveData()"></textarea>
     <div class="btn-group">
         <button class="btn-update" onclick="updateTable()">更新连排</button>
