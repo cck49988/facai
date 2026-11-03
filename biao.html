@@ -3,267 +3,309 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>完美连中战绩生成器</title>
+<title>发财~多期连排版</title>
 <style>
     body {
-        background-color: #333; 
+        background-color: #f5f5f5; 
         margin: 0;
         padding: 10px 0;
-        font-family: "Microsoft YaHei", "SimHei", sans-serif;
+        font-family: "Microsoft YaHei", "宋体", sans-serif;
     }
     
-    /* 顶部输入修改区 */
+    /* ---------------- 顶部输入区 ---------------- */
     .control-panel {
-        width: 100%;
-        max-width: 600px;
+        width: 420px;
         margin: 0 auto 10px auto;
         background: #fff;
         padding: 12px;
         border-radius: 8px;
+        box-shadow: 0 0 5px rgba(0,0,0,0.1);
         box-sizing: border-box;
     }
     .control-panel textarea {
         width: 100%;
-        height: 120px; 
-        padding: 10px;
+        height: 100px;
+        padding: 8px;
+        margin-bottom: 8px;
         box-sizing: border-box;
         border: 1px solid #ccc;
         border-radius: 4px;
         font-size: 14px;
+        font-family: monospace;
         line-height: 1.5;
-        margin-bottom: 10px;
+    }
+    .tip {
+        font-size: 12px; color: #666; margin-bottom: 5px;
+    }
+    .btn-group {
+        display: flex;
+        gap: 10px;
     }
     .control-panel button {
-        width: 100%;
-        padding: 12px;
-        background-color: #4CAF50;
+        flex: 1;
+        padding: 10px;
         color: white;
         border: none;
         border-radius: 4px;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: bold;
         cursor: pointer;
     }
-    .tip { font-size: 13px; color: #666; margin-bottom: 5px; line-height: 1.5;}
-    .red-text { color: #d32f2f; font-weight: bold;}
+    .btn-update { background-color: #4CAF50; }
+    .btn-download { background-color: #FF9800; }
 
-    /* ---------------- 截图区域 ---------------- */
+    /* ---------------- 截图区域样式 (完全保留原版大小) ---------------- */
     .container {
-        width: 100%;
-        max-width: 600px; 
+        width: 420px; 
         margin: 0 auto; 
-        background-color: #000000; 
-        border: 2px solid #00ff00; 
-        box-sizing: border-box;
-        position: relative;
-        overflow: hidden;
+        background-color: #ffffff; 
+        position: relative; 
+        overflow: hidden; 
     }
-
+    
     /* 水印 */
     .watermark {
-        position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-        pointer-events: none; z-index: 10; 
-        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><text x='50%' y='50%' font-size='14' font-weight='bold' fill='rgba(255, 255, 255, 0.05)' transform='rotate(-30 50 50)' text-anchor='middle'>米多多</text></svg>");
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        pointer-events: none; 
+        z-index: 10; 
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='90'><text x='50%' y='50%' font-size='14' font-weight='bold' fill='rgba(180, 180, 180, 0.2)' transform='rotate(-30 45 45)' text-anchor='middle'>米多多</text></svg>");
         background-repeat: repeat;
     }
-
-    .period-block { 
-        border-bottom: 2px solid #222; 
-        padding-bottom: 5px;
-        margin-bottom: 5px;
-    }
-    .period-block:last-child { border-bottom: none; }
-
-    /* 顶部标题栏 */
-    .top-title { 
-        text-align: center; padding: 8px 0; font-size: 16px; font-weight: bold; 
-        color: #00BFFF; background: linear-gradient(to bottom, #111, #000); 
-        border-bottom: 1px solid #333; 
-    }
-
-    /* 数据行：坚决不换行 */
-    .data-row { 
-        display: flex; border-bottom: 1px solid #333; min-height: 45px; align-items: center; 
-    }
-    .data-row:last-child { border-bottom: none; }
-
-    /* ⭐ 重点修改：左边压缩到 40%，右边扩大到 60% ⭐ */
-    .col-left { 
-        width: 40%; padding: 0 5px; font-size: 18px; font-weight: bold; 
-        display: flex; align-items: center; border-right: 1px solid #333; 
-        box-sizing: border-box; white-space: nowrap; 
-    }
     
-    .col-right { 
-        width: 60%; padding: 0 8px; font-size: 18px; font-weight: bold; 
-        display: flex; align-items: center; 
-        box-sizing: border-box; white-space: nowrap; 
+    /* 表格基础样式 */
+    .qxtable {
+        font-size: 15px; 
+        line-height: 1.4;
+        font-weight: bold; 
+        border-collapse: collapse; 
+        position: relative;
+        z-index: 1; 
+        width: 100%;
     }
-    
-    .label-left { color: #FFFFFF; margin-right: 2px; white-space: nowrap; font-size: 16px;}
-    .txt-zodiac { color: #FF0000; letter-spacing: -0.5px;} 
-    
-    .label-right { color: #00FF00; margin-right: 4px; white-space: nowrap; font-size: 16px;} 
-    .txt-number { color: #FF0000; font-size: 17px; } /* 数字稍微大一点点 */
-    .txt-suffix { color: #CC00FF; font-size: 11px; font-weight: normal; margin-left: 3px; white-space: nowrap;} 
+    .qxtable td {
+        padding: 6px 4px; 
+        border: 1px solid #000000; 
+    }
 
-    /* 高亮样式 */
+    /* 高亮特效 */
     .hit-box {
         background-color: #FFFF00; 
         color: #FF0000 !important; 
-        box-shadow: 0 0 8px #FFFF00; 
+        box-shadow: 0 0 5px #FFFF00; 
         display: inline; 
-        padding: 0; margin: 0;
-    }
-
-    /* 底部标语 */
-    .bottom-title { 
-        text-align: center; padding: 10px 0; font-size: 16px; font-weight: bold; 
-        color: #FF0000; background-color: #050505; border-top: 1px solid #222; 
-    }
-    
-    /* 底部高亮专属样式 */
-    .highlight-yellow-box {
-        background-color: #FFFF00;
-        color: #FF0000 !important;
-        padding: 0 4px;
-        margin: 0 2px;
-        display: inline-block;
+        padding: 0 2px;
+        margin: 0;
         border-radius: 2px;
     }
 </style>
+
+<!-- 引入 html2canvas 截图库 -->
+<script src="https://cdn.bootcdn.net/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
 <!-- ================= 网页修改面板 ================= -->
 <div class="control-panel">
     <div class="tip">
-        <b>格式：</b>期数|标语|六肖|6个号码|底部标语|中或挂|开[生肖][号码]<br>
-        <span class="red-text">示例：305期|昨天坐地铁...|兔虎蛇羊鸡马|30.06.47.11.41.27|内幕资料 &lt;26中&gt; 为民造福!|中|开蛇26</span>
+        <b>格式：</b>期数|标语|六肖|号码|开[生肖][号码] 或写“挂”<br>
+        例如：<br>
+        302期|发财机会天天见|牛鸡猪狗马鼠|06 46 44 21 25 43|开牛06<br>
+        303期|发财机会天天见|鼠牛虎兔龙蛇|01 12 23 34 45 56|挂
     </div>
+    <!-- 改为大文本框 -->
     <textarea id="in_data" oninput="saveData()"></textarea>
-    <button onclick="generate()">生成连排（并自动保存）</button>
+    <div class="btn-group">
+        <button class="btn-update" onclick="updateTable()">更新连排</button>
+        <button class="btn-download" onclick="downloadImage()" id="btnDownload">保存高清图</button>
+    </div>
 </div>
+<!-- ==================================================================== -->
 
-<!-- ================= 截图区域 ================= -->
+
+<!-- 下面的代码是表格排版 -->
 <div class="container" id="screenshot-area">
+    
+    <!-- 水印层 -->
     <div class="watermark"></div>
+
+    <!-- 动态生成的表格会塞进这里 -->
     <div id="output-area"></div>
 </div>
 
+<!-- ================= 自动计算与保存图片逻辑 ================= -->
 <script>
+    // 保存数据到本地
     function saveData() {
-        localStorage.setItem('myLotteryData', document.getElementById('in_data').value);
+        localStorage.setItem('myLotteryDataFinal', document.getElementById('in_data').value);
     }
 
+    // 页面加载
     window.onload = function() {
-        var savedData = localStorage.getItem('myLotteryData');
+        var savedData = localStorage.getItem('myLotteryDataFinal');
         if (savedData) {
             document.getElementById('in_data').value = savedData;
         } else {
+            // 默认演示数据
             document.getElementById('in_data').value = 
-"305期|昨天坐地铁打工,今天保时捷接送!|兔虎蛇羊鸡马|30.06.47.11.41.27|内幕资料 <26中> 为民造福!|中|开蛇26";
+"302期|发财机会天天见,专业服务不打烊|牛鸡猪狗马鼠|06 46 44 21 25 43|开牛06\n" +
+"303期|专业服务不打烊|鼠牛虎兔龙蛇|01 12 23 34 45 56|挂";
         }
-        generate(); 
+        updateTable(); 
     };
 
-    function generate() {
+    // 核心生成逻辑
+    function updateTable() {
         var rawData = document.getElementById('in_data').value;
         var lines = rawData.split('\n');
         var outputHTML = '';
+        var validLines = [];
 
+        // 1. 先过滤出所有不是“挂”的期数
         for (var i = 0; i < lines.length; i++) {
             var line = lines[i].trim();
             if (line === '') continue; 
 
             var parts = line.split('|');
-            if (parts.length < 6) continue;
+            if (parts.length < 5) continue;
 
+            var status = parts[4].trim(); 
+            if (status === '挂') continue; // 遇到挂直接跳过
+            
+            validLines.push(parts);
+        }
+
+        // 2. 如果没有中奖的，提示
+        if (validLines.length === 0) {
+            document.getElementById('output-area').innerHTML = '<div style="text-align:center; padding: 20px; color:#333;">没有中奖记录。</div>';
+            return;
+        }
+
+        // 3. 渲染合并后的大表格
+        outputHTML += `<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" class="qxtable"><tbody>`;
+
+        for (var j = 0; j < validLines.length; j++) {
+            var parts = validLines[j];
             var qishu = parts[0];
-            var title = parts[1];
+            var biaoyu = parts[1];
             var liuxiao = parts[2].trim();
             var liuma = parts[3].trim();
-            var bottom = parts[4]; 
-            var status = parts[5].trim();
+            var status = parts[4].trim(); 
             
+            // 解析开奖数据
             var hitZodiac = "";
             var hitNumber = "";
+            var zodiacMatch = status.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/);
+            if (zodiacMatch) hitZodiac = zodiacMatch[0];
+            var numberMatch = status.match(/\d+/);
+            if (numberMatch) hitNumber = numberMatch[0];
 
-            if (parts.length >= 7 && parts[6].trim() !== "") {
-                var hitData = parts[6]; 
-                var zodiacMatch = hitData.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/);
-                if (zodiacMatch) hitZodiac = zodiacMatch[0];
-                
-                var numberMatch = hitData.match(/\d+/);
-                if (numberMatch) hitNumber = numberMatch[0];
-            }
-
-            if (status === '挂') continue; 
-
+            // 高亮渲染
             function renderZodiac(str) {
-                if (!hitZodiac) return `<span class="txt-zodiac">${str}</span>`;
+                if (!hitZodiac) return `<font color="#FF0000">${str}</font>`;
                 var regex = new RegExp(hitZodiac, 'g');
                 var newStr = str.replace(regex, `<span class="hit-box">${hitZodiac}</span>`);
-                return `<span class="txt-zodiac">${newStr}</span>`;
+                return `<font color="#FF0000">${newStr}</font>`;
             }
 
             function renderNumber(str) {
-                if (!hitNumber) return `<span class="txt-number">${str}</span>`;
-                var regex = new RegExp(`(^|\\.)(${hitNumber})(?=\\.|$)`, 'g');
+                if (!hitNumber) return `<font color="#FF0000">${str}</font>`;
+                var regex = new RegExp(`(^|\\s)(${hitNumber})(?=\\s|$)`, 'g');
                 var newStr = str.replace(regex, `$1<span class="hit-box">$2</span>`);
-                return `<span class="txt-number">${newStr}</span>`;
+                return `<font color="#FF0000">${newStr}</font>`;
             }
 
-            var finalBottom = bottom;
-            if (finalBottom.includes("<") && finalBottom.includes(">")) {
-                finalBottom = finalBottom.replace(/<([^>]+)>/g, `<span class="highlight-yellow-box">&lt;$1&gt;</span>`);
-            }
-
-            var wuxiao = liuxiao.substring(0, 5);
-            var sanxiao = liuxiao.substring(0, 3);
+            // 截取
+            var sixiao = liuxiao.substring(0, 4);
             var erxiao = liuxiao.substring(0, 2);
+            var yixiao = liuxiao.substring(0, 1);
             
-            var maArray = liuma.split(/[\s,.]+/);
-            var wuma = maArray.slice(0, 5).join(".");
-            var sanma = maArray.slice(0, 3).join(".");
-            var erma = maArray.slice(0, 2).join(".");
+            var maArray = liuma.split(/[\s,]+/);
+            var sima = maArray.slice(0, 6).join(" ");
+            var erma = maArray.slice(0, 3).join(" ");
+            var yima = maArray[0] || "";
 
+            // 每一期的内部行
             outputHTML += `
-            <div class="period-block">
-                <div class="top-title">${qishu}:${title}</div>
-                
-                <div class="data-row">
-                    <div class="col-left"><span class="label-left">六肖:</span>${renderZodiac(liuxiao)}</div>
-                    <div class="col-right"><span class="label-right">⑥码:</span>${renderNumber(liuma)}</div>
-                </div>
-                
-                <div class="data-row">
-                    <div class="col-left"><span class="label-left">五肖:</span>${renderZodiac(wuxiao)}</div>
-                    <div class="col-right"><span class="label-right">⑤码:</span>${renderNumber(wuma)}</div>
-                </div>
-                
-                <div class="data-row">
-                    <div class="col-left"><span class="label-left">三肖:</span>${renderZodiac(sanxiao)}<span class="txt-suffix">~轻松中</span></div>
-                    <div class="col-right"><span class="label-right">③码:</span>${renderNumber(sanma)}<span class="txt-suffix">~小投注轻松玩</span></div>
-                </div>
-                
-                <div class="data-row">
-                    <div class="col-left"><span class="label-left">二肖:</span>${renderZodiac(erxiao)}<span class="txt-suffix">~一注出奇迹</span></div>
-                    <div class="col-right"><span class="label-right">②码:</span>${renderNumber(erma)}<span class="txt-suffix">~运气来了挡不住</span></div>
-                </div>
-                
-                <div class="bottom-title">
-                    ${qishu}:${finalBottom}
-                </div>
-            </div>
+                <tr>
+                    <td style="text-align:center;background:#e1f0ff" width="100%" colspan="2" height="32">
+                        <span>${qishu}</span>:<span>${biaoyu}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align:left" bgcolor="#F4F4F4" width="48%" height="32">
+                        <font color="#000080">六肖:</font>${renderZodiac(liuxiao)}
+                    </td>
+                    <td style="text-align:left" bgcolor="#F4F4F4" height="32">
+                        <font color="#000080">6码:</font>${renderNumber(sima)}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align:left" bgcolor="#F4F4F4" width="48%" height="32">
+                        <font color="#000080">四肖:</font>${renderZodiac(sixiao)}
+                    </td>
+                    <td style="text-align:left" bgcolor="#F4F4F4" height="32">
+                        <font color="#000080">4码:</font>${renderNumber(maArray.slice(0, 4).join(" "))}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align:left" bgcolor="#F4F4F4" width="48%" height="32">
+                        <font color="#000080">二肖:</font>${renderZodiac(erxiao)}
+                    </td>
+                    <td style="text-align:left" bgcolor="#F4F4F4" height="32">
+                        <font color="#000080">2码:</font>${renderNumber(erma)}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align:left" bgcolor="#F4F4F4" width="48%" height="32">
+                        <font color="#000080">一肖:</font>${renderZodiac(yixiao)}<font color="#000080">~~稳准狠</font>
+                    </td>
+                    <td style="text-align:left" bgcolor="#F4F4F4" height="32">
+                        <font color="#000080">1码:</font>${renderNumber(yima)}<font color="#000080">~~重点多压</font>
+                    </td>
+                </tr>
             `;
         }
 
-        if(outputHTML === '') {
-            outputHTML = '<div style="color:#fff; text-align:center; padding: 20px;">全部都是“挂”，没有可以显示的数据。</div>';
-        }
+        // 4. 无论多少期，只在最尾部加上这一个标语
+        outputHTML += `
+                <tr>
+                    <td style="text-align:center;background:#e1f0ff" width="100%" colspan="2" height="32">
+                        百万富翁零距离，精彩服务百分百！
+                    </td>
+                </tr>
+            </tbody>
+        </table>`;
 
         document.getElementById('output-area').innerHTML = outputHTML;
+    }
+
+    // 保存为图片的功能
+    function downloadImage() {
+        var btn = document.getElementById('btnDownload');
+        btn.innerText = "正在生成...";
+        btn.disabled = true;
+
+        var element = document.getElementById('screenshot-area');
+        
+        html2canvas(element, {
+            scale: 3, 
+            backgroundColor: "#ffffff", 
+            useCORS: true
+        }).then(function(canvas) {
+            var imgData = canvas.toDataURL("image/png");
+            var link = document.createElement('a');
+            link.download = '连中战绩_资料.png';
+            link.href = imgData;
+            link.click();
+
+            btn.innerText = "保存高清图";
+            btn.disabled = false;
+        }).catch(function(error) {
+            alert("生成图片失败，请确保网络畅通！");
+            btn.innerText = "保存高清图";
+            btn.disabled = false;
+        });
     }
 </script>
 
