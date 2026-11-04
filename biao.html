@@ -222,15 +222,17 @@
                 return `<font color="#FF0000">${newStr}</font>`;
             }
 
-            // 截取
+            // 截取生肖和号码
             var sixiao = liuxiao.substring(0, 4);
             var erxiao = liuxiao.substring(0, 2);
             var yixiao = liuxiao.substring(0, 1);
             
             var maArray = liuma.split(/[\s,]+/);
-            var sima = maArray.slice(0, 6).join(" ");
-            var erma = maArray.slice(0, 3).join(" ");
-            var yima = maArray[0] || "";
+            // 修复：严格按数量截取
+            var liuMaStr = maArray.slice(0, 6).join(" "); // 6码
+            var siMaStr = maArray.slice(0, 4).join(" ");  // 4码
+            var erMaStr = maArray.slice(0, 2).join(" ");  // 2码 (修复为只取2个)
+            var yiMaStr = maArray[0] || "";               // 1码
 
             // 每一期的内部行
             outputHTML += `
@@ -244,7 +246,7 @@
                         <font color="#000080">六肖:</font>${renderZodiac(liuxiao)}
                     </td>
                     <td style="text-align:left" bgcolor="#F4F4F4" height="32">
-                        <font color="#000080">6码:</font>${renderNumber(sima)}
+                        <font color="#000080">6码:</font>${renderNumber(liuMaStr)}
                     </td>
                 </tr>
                 <tr>
@@ -252,7 +254,7 @@
                         <font color="#000080">四肖:</font>${renderZodiac(sixiao)}
                     </td>
                     <td style="text-align:left" bgcolor="#F4F4F4" height="32">
-                        <font color="#000080">4码:</font>${renderNumber(maArray.slice(0, 4).join(" "))}
+                        <font color="#000080">4码:</font>${renderNumber(siMaStr)}
                     </td>
                 </tr>
                 <tr>
@@ -260,7 +262,7 @@
                         <font color="#000080">二肖:</font>${renderZodiac(erxiao)}
                     </td>
                     <td style="text-align:left" bgcolor="#F4F4F4" height="32">
-                        <font color="#000080">2码:</font>${renderNumber(erma)}
+                        <font color="#000080">2码:</font>${renderNumber(erMaStr)}
                     </td>
                 </tr>
                 <tr>
@@ -268,7 +270,7 @@
                         <font color="#000080">一肖:</font>${renderZodiac(yixiao)}<font color="#000080">~~稳准狠</font>
                     </td>
                     <td style="text-align:left" bgcolor="#F4F4F4" height="32">
-                        <font color="#000080">1码:</font>${renderNumber(yima)}<font color="#000080">~~重点多压</font>
+                        <font color="#000080">1码:</font>${renderNumber(yiMaStr)}<font color="#000080">~~重点多压</font>
                     </td>
                 </tr>
             `;
